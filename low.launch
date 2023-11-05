@@ -1,0 +1,47 @@
+    <launch>
+
+        <!-- Add node name to console output to identify which node is talking -->
+        <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${time}] [${node}]: ${message}"/>
+
+        <!-- Don't use simulation time-->
+        <param name="/use_sim_time" value="false"/>
+
+        <!-- TODO: Start the Vicon tracking node. Be sure to set the tracker name to "quad" -->
+        <node pkg="vrpn_client_ros" type="vrpn_client_node" name="vrpn_client_node" output="screen">
+            <rosparam subst_value="true">
+                # Server and port of the VRPN server
+                server: 192.168.1.100
+                port: 3883
+
+                # How quickly to publish to topics
+                update_frequency: 100.0
+                
+                frame_id: world
+
+                # Use the VRPN server's time, or the client's ROS time.
+                use_server_time: false
+                broadcast_tf: true
+
+                # Must either specify refresh frequency > 0.0, or a list of trackers to create.
+                # Tracker names must exactly match those in the Vicon Tracker software.
+                #refresh_tracker_frequency: 1.0
+                trackers:
+                - quad
+            </rosparam>
+        </node>
+
+        <!-- TODO: start the quadruped communication node -->
+        <node pkg="low_command" type="low_communication" name="low_communication"  output="screen" />
+
+        <!-- TODO: Start the trajectory generator from bootcamp_02-->
+        <node pkg="bootcamp_02" type="trajectory_generator" name="trajectory_generator"  output="screen" />
+
+        <!-- TODO: Start the controller from bootcamp_02 and configure its parameters -->
+        <node pkg="bootcamp_02" type="controller" name="controller"  output="screen">
+            <param name="cycle_rate" value="10.0" type="double" />
+            <param name="Kx" value="0.5" type="double" />
+            <param name="Ky" value="0.5" type="double" />
+            <param name="Kphi" value="0.5" type="double" />
+        </node>
+
+    </launch>
